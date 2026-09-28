@@ -25,7 +25,7 @@ the claims not from the document, and the unused parts of the document.
 Code owns search, word overlap, thresholds and the report; Jev answers narrow typed questions.
 The API key comes from $TYPESAFE_API_KEY, else `secret-tool lookup service jev key api`.
 Every live request's input tokens are added to a ledger in the cache directory; with
---max-spend (or $AUDITLM_MAX_SPEND) the run stops before the ledger passes that many dollars.
+--max-spend (or $AIRESPONSEAUDIT_MAX_SPEND) the run stops before the ledger passes that many dollars.
 """
 
 import argparse
@@ -52,26 +52,25 @@ PARTLY_ABOVE = 0.60  # ... plus p(partly) at or above this -> partly from the do
 SPECIFIC_ABOVE = 0.50  # partly also needs this p that the claim takes a specific fact from the passage
 POSSIBLE_ABOVE = 0.30  # ... at or above this -> shown as a possible source of a claim not from the document
 QUOTE_WORDS = 8  # a shared run of this many words or more counts as quoting
-FILLER_BELOW = 0.50  # Noul below this -> filler, not audited
+FILLER_BELOW = 0.20  # Noul below this -> filler, not audited (low, so only clear filler is skipped)
 CONCURRENCY = 12  # rate limit is 1,200 requests/minute
 PRICE_PER_MILLION = 0.042  # Jev input tokens, USD; output tokens are free
 SECRET_ATTRS = ["service", "jev", "key", "api"]
-CACHE_DIR = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "auditlm"
+CACHE_DIR = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "ai-response-audit"
 LEDGER = CACHE_DIR / "spend.json"
 
 FROM_DOCUMENT = ("quoted", "paraphrased", "inferred")
 
 # --- Judgments -----------------------------------------------------------------
-CONTEXT_NOTE = ("`context`, when present, gives the answer's section heading, list lead-in, and previous "
-                "sentence only to resolve what `sentence` refers to; judge `sentence` itself. A list item "
-                "continues its `context.list_lead_in`: the item 'monitoring' under the lead-in 'Ostrom's design "
-                "principles:' claims that monitoring is one of Ostrom's design principles.")
+CONTEXT_NOTE = ("`context` only resolves what `sentence` refers to; judge `sentence` itself. A list item "
+                "continues its `context.list_lead_in`: under 'Ostrom's principles:', the item 'monitoring' claims "
+                "that monitoring is one of them.")
 
 FILLER = {
     "claim": Noul(
-        instructions="Does `sentence`, from an AI assistant's answer about the document `document`, make a "
-                     "claim about the document or its subject, rather than being a greeting, a transition, an "
-                     "offer of further help, or a remark about the answer itself? " + CONTEXT_NOTE,
+        instructions="Does `sentence`, from an AI assistant's answer about `document`, make a claim about the "
+                     "document or its subject, rather than being a greeting, a transition, an offer of help, or "
+                     "a remark about the answer itself? " + CONTEXT_NOTE,
     ),
 }
 
@@ -86,18 +85,15 @@ def choose_question(candidates: list[dict]) -> dict:
                         "general topic. A passage that gives different facts about the same thing (other "
                         "numbers, names, or conclusions) does address it.")
     return {"addresses": Choice(
-        instructions="An AI assistant wrote `sentence` in an answer about the document `document`. Which "
-                     "passage from the document addresses the specific point `sentence` makes (its claim, "
-                     "names, numbers, examples, or attributions), whether the passage agrees with it or not? "
-                     + CONTEXT_NOTE,
+        instructions="Which passage addresses the specific point `sentence` makes (its claim, names, numbers, "
+                     "examples, or attributions), whether the passage agrees with it or not? " + CONTEXT_NOTE,
         criteria=criteria,
     )}
 
 
 RELATE = Choice(
-    instructions="An AI assistant wrote `sentence` in an answer about the document `document`. How does "
-                 "`passage`, an excerpt from that document (from the section `passage_section`, when given), "
-                 "bear on `sentence`? " + CONTEXT_NOTE,
+    instructions="How does `passage` (from the section `passage_section`, when given) bear on `sentence`? "
+                 + CONTEXT_NOTE,
     criteria={
         "restates": "The sentence says what the passage says, in the same or other words, or condenses it into "
                     "a shorter or more general statement, without adding claims or changing details.",
@@ -114,16 +110,14 @@ RELATE = Choice(
 # "partly" alone is read literally: a claim that only shares the passage's topic or a general term
 # ("legal frameworks") counts as partly from it. This narrower question separates the two.
 SPECIFIC = Noul(
-    instructions="An AI assistant wrote `sentence` in an answer about the document `document`. Does `sentence` "
-                 "contain at least one specific fact, detail, example, or statement that appears in `passage`, "
-                 "beyond sharing its topic or general terms? " + CONTEXT_NOTE,
+    instructions="Does `sentence` contain at least one specific fact, detail, example, or statement that "
+                 "appears in `passage`, beyond sharing its topic or general terms? " + CONTEXT_NOTE,
 )
 
 
 def evidence_question(passage_sentences: list[str]) -> Choice:
     return Choice(
-        instructions="An AI assistant wrote `sentence` in an answer about the document `document`. Which "
-                     "sentence of `passage` does `sentence` rely on most directly? " + CONTEXT_NOTE,
+        instructions="Which sentence of `passage` does `sentence` rely on most directly? " + CONTEXT_NOTE,
         criteria={f"E{i + 1}": s for i, s in enumerate(passage_sentences)},
     )
 
@@ -444,8 +438,8 @@ async def audit(work: Path, answer_path: Path, max_spend: float | None) -> None:
                                                  indent=2, ensure_ascii=False))
 
     def state(c: dict, **extra) -> dict:
-        return {"document": title, "sentence": c["text"], **({"context": c["context"]} if c["context"] else {}),
-                **extra}
+        """Claim and its context; the document title only for the filler question, which has no passage."""
+        return {"sentence": c["text"], **({"context": c["context"]} if c["context"] else {}), **extra}
 
     retry = RetryPolicy(max_retries=6, backoff_max=20.0)
     async with AsyncTypeSafeClient(api_key=api_key(), retry=retry) as client:
@@ -484,12 +478,12 @@ async def audit(work: Path, answer_path: Path, max_spend: float | None) -> None:
                     "evidence": evidence, **verdict_of(a["relation"], a["specific"]["noul"], shared, pid in quoted_ids)}
 
         async def audit_claim(c: dict) -> dict:
-            quoted_ids = {i for q in QUOTE_RE.findall(c["text"]) for i in doc.quote_passages(q)}
-            filler, (picks, searched) = await asyncio.gather(ask(state(c), FILLER),
-                                                             attribute(c, sorted(quoted_ids, key=doc.order.get)))
-            is_claim = filler["claim"]["noul"]
-            links = []
+            # Step 1 first: a filler line isn't searched at all.
+            is_claim = (await ask(state(c, document=title), FILLER))["claim"]["noul"]
+            links, searched = [], "not searched"
             if is_claim >= FILLER_BELOW:
+                quoted_ids = {i for q in QUOTE_RE.findall(c["text"]) for i in doc.quote_passages(q)}
+                picks, searched = await attribute(c, sorted(quoted_ids, key=doc.order.get))
                 links = await asyncio.gather(*[relate(c, pid, quoted_ids) for pid, _ in picks])
                 for link, (_, share) in zip(links, picks):
                     link["share"] = round(share, 2)
@@ -563,7 +557,9 @@ def render(report: dict, doc: Document, by_id: dict) -> str:
            f"Source document: *{report['document']}*", "",
            f"**{s['from_document']} of {s['claims']} claims ({round(s['word_share_from_document'] * 100)}% of the "
            f"answer's words) came from the document.** {s['partly']} came partly from it, and "
-           f"{s['not_from_document']} did not.", "",
+           f"{s['not_from_document']} did not."
+           + (f" {s['skipped']} line{'s' if s['skipped'] != 1 else ''} weren't checked (listed below)."
+              if s["skipped"] else ""), "",
            f"From the document: {by['quoted']} quoted · {by['paraphrased']} paraphrased · {by['inferred']} inferred"
            f" · plus {by['partly']} partly", ""]
 
@@ -609,6 +605,13 @@ def render(report: dict, doc: Document, by_id: dict) -> str:
     if not nots:
         out.append("Every claim came at least partly from the document.")
     out.append("")
+
+    skipped = [r for r in rows if r["label"] == "skipped"]
+    if skipped:
+        out += ["## Lines not checked", "",
+                "Jev judged these lines not to be claims about the document (greetings, transitions, offers of "
+                "help). If one of them is a claim, the audit didn't check it.", ""]
+        out += [f"- {r['text']}" for r in skipped] + [""]
 
     out += ["## Parts of the document not used", ""]
     counts = collections.Counter(l["passage"] for r in rows if r["label"] != "not from the document"
@@ -660,7 +663,7 @@ def render(report: dict, doc: Document, by_id: dict) -> str:
             "- **partly**: part of the claim is in the document and part isn't, or a detail was changed.",
             "- **not from the document**: no passage says it. It may come from the assistant's training, its own "
             "reasoning, or the question. That doesn't make it wrong.",
-            "- Lines in *italics* aren't claims and weren't checked.",
+            "- Lines in *italics* aren't claims and weren't checked; they are listed under \"Lines not checked\".",
             "- Method: keyword search finds candidate passages; Jev (TypeSafe) picks which ones the claim draws "
             "on and how; the evidence lines are copied from the document. When the match is borderline, the "
             "claim is counted as not from the document.", ""]
@@ -668,7 +671,7 @@ def render(report: dict, doc: Document, by_id: dict) -> str:
 
 
 def terminal_view(md: str) -> str:
-    """Headline, claims not from the document, unused parts."""
+    """Headline, claims not from the document, lines not checked, unused parts."""
     head = md.split("\n## The answer, annotated")[0]
     rest = md.split("## Not from the document", 1)[1].split("\n## How to read this")[0]
     return head.rstrip() + "\n\n## Not from the document" + rest.rstrip()
@@ -678,8 +681,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("work", type=Path)
     ap.add_argument("answer", type=Path)
-    ap.add_argument("--max-spend", type=float, default=float(os.environ["AUDITLM_MAX_SPEND"])
-                    if os.environ.get("AUDITLM_MAX_SPEND") else None,
+    ap.add_argument("--max-spend", type=float, default=float(os.environ["AIRESPONSEAUDIT_MAX_SPEND"])
+                    if os.environ.get("AIRESPONSEAUDIT_MAX_SPEND") else None,
                     help="stop before the spend ledger passes this many US dollars")
     args = ap.parse_args()
     asyncio.run(audit(args.work, args.answer, args.max_spend))

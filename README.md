@@ -1,4 +1,4 @@
-# auditlm
+# AI Response Audit
 
 A Claude Code plugin that shows which parts of an AI assistant's answer came from a source
 document, and which did not.
@@ -16,8 +16,8 @@ generative model. The output is a plain Markdown report, with no assistant comme
 ## Install
 
 ```
-/plugin marketplace add /path/to/auditlm
-/plugin install auditlm@auditlm
+/plugin marketplace add /path/to/ai-response-audit
+/plugin install ai-response-audit@ai-response-audit
 ```
 
 Store a TypeSafe API key once, or set `TYPESAFE_API_KEY`:
@@ -29,7 +29,7 @@ secret-tool store --label="TypeSafe API key" service jev key api
 ## Use
 
 ```
-/auditlm:audit paper.pdf answer.md
+/ai-response-audit:audit paper.pdf answer.md
 ```
 
 You can also paste the answer into the chat. The scripts can be run on their own:
@@ -43,7 +43,7 @@ uv run skills/audit/scripts/audit.py paper-audit/ answer.md      # writes paper-
 
 It runs in Claude Code on your own machine (CLI or desktop). The scripts need `uv`,
 outbound access to `api.typesafe.ai`, and a TypeSafe API key. Document text is sent to
-TypeSafe, and cached locally in `~/.cache/auditlm/`. Delete that folder to clear the cache.
+TypeSafe, and cached locally in `~/.cache/ai-response-audit/`. Delete that folder to clear the cache.
 
 ## Test
 
@@ -52,9 +52,9 @@ per-claim labels written before any run. Answer 2 for each document is held out.
 has one real assistant answer, which has no labels.
 
 ```
-tests/run.sh /tmp/auditlm-runs all                    # ingest the documents, audit every answer
-python3 tests/check.py /tmp/auditlm-runs --set holdout # precision, recall, source, false "used"
+tests/run.sh /tmp/ai-response-audit-runs all                    # ingest the documents, audit every answer
+python3 tests/check.py /tmp/ai-response-audit-runs --set holdout # precision, recall, source, false "used"
 ```
 
-Set `AUDITLM_MAX_SPEND=<dollars>` to stop before the spend ledger (`~/.cache/auditlm/spend.json`)
+Set `AIRESPONSEAUDIT_MAX_SPEND=<dollars>` to stop before the spend ledger (`~/.cache/ai-response-audit/spend.json`)
 passes that amount.

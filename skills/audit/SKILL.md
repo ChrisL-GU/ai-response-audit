@@ -34,8 +34,8 @@ document named `<document-stem>-audit/`, with one subdirectory per answer.
    - `audit.json`, every label with the probabilities behind it;
    - `claims.json`, how the answer was split into claims.
 
-   It prints the report's headline, the claims not from the document, and the parts of the
-   document that weren't used. Results are cached, so re-runs of the same input are free.
+   It prints the report's headline, the claims not from the document, the lines that
+   weren't checked, and the parts of the document that weren't used. Results are cached, so re-runs of the same input are free.
    A 20-claim answer against a 13,000-word document takes about 70 requests, under one cent.
 
 ## Show the results

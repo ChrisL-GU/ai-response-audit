@@ -2,17 +2,17 @@
 
 Source document: *Exploring the Mind: Gonzaga Senior Ava Knap Blends Neuroscience, Art, and Athletics*
 
-**6 of 11 claims (61% of the answer's words) came from the document.** 1 came partly from it, and 4 did not.
+**6 of 12 claims (59% of the answer's words) came from the document.** 2 came partly from it, and 4 did not. 1 line weren't checked (listed below).
 
-From the document: 2 quoted · 4 paraphrased · 0 inferred · plus 1 partly
+From the document: 2 quoted · 4 paraphrased · 0 inferred · plus 2 partly
 
 ## The answer, annotated
 
-*Here's an overview of Ava Knap's story.*
+Here's an overview of Ava Knap's story. `[not from the document]`
 
 **Background**
 
-Ava Knap is a senior at Gonzaga University who grew up in St. Joseph, a small farming town in Illinois. `[para 1 · paraphrased]` Gonzaga is a private Jesuit university in Spokane, Washington, founded in 1887. `[not from the document]` She first planned to major in biology but switched when Gonzaga started a new neuroscience program, and she is in its first graduating class. `[para 2 · paraphrased]`
+Ava Knap is a senior at Gonzaga University who grew up in St. Joseph, a small farming town in Illinois. `[para 1 · paraphrased]` Gonzaga is a private Jesuit university in Spokane, Washington, founded in 1887. `[para 1 · partly]` She first planned to major in biology but switched when Gonzaga started a new neuroscience program, and she is in its first graduating class. `[para 2 · paraphrased]`
 
 **Why neuroscience**
 
@@ -34,6 +34,8 @@ After graduating, she plans to pursue an education specialist degree and become 
 **para 1** · Discovering Possibility at Gonzaga
 - *paraphrased*: Ava Knap is a senior at Gonzaga University who grew up in St. Joseph, a small farming town in Illinois.
   > Coming from the small agricultural town of St. Joseph, Illinois, she arrived in Spokane ready to chase big dreams both on and off the track as a standout student-athlete.
+- *partly*: Gonzaga is a private Jesuit university in Spokane, Washington, founded in 1887.
+  > For senior Ava Knap, Gonzaga University offered something she couldn’t find anywhere else—a sense of bold possibility.
 
 **para 2** · Discovering Possibility at Gonzaga
 - *paraphrased*: She first planned to major in biology but switched when Gonzaga started a new neuroscience program, and she …
@@ -61,10 +63,16 @@ After graduating, she plans to pursue an education specialist degree and become 
 
 ## Not from the document
 
-1. Gonzaga is a private Jesuit university in Spokane, Washington, founded in 1887. *Closest passage: para 1.*
+1. Here's an overview of Ava Knap's story. *Closest passage: para 1.*
 2. That experience likely shapes her plan to work with children who struggle in school. *Closest passage: para 3.*
 3. Research shows that student-athletes often develop stronger time-management skills than their peers. *Closest passage: para 7.*
 4. The article argues that every university should adopt this kind of interdisciplinary major. *Closest passage: paras 10–11.*
+
+## Lines not checked
+
+Jev judged these lines not to be claims about the document (greetings, transitions, offers of help). If one of them is a claim, the audit didn't check it.
+
+- Let me know if you'd like a shorter version for social media!
 
 ## Parts of the document not used
 
@@ -76,5 +84,5 @@ The answer drew on 5 of the document's 5 sections.
 - **quoted**: uses the document's exact words. **paraphrased**: says what a passage says in other words, including summarizing it. **inferred**: a conclusion the document supports but doesn't state.
 - **partly**: part of the claim is in the document and part isn't, or a detail was changed.
 - **not from the document**: no passage says it. It may come from the assistant's training, its own reasoning, or the question. That doesn't make it wrong.
-- Lines in *italics* aren't claims and weren't checked.
+- Lines in *italics* aren't claims and weren't checked; they are listed under "Lines not checked".
 - Method: keyword search finds candidate passages; Jev (TypeSafe) picks which ones the claim draws on and how; the evidence lines are copied from the document. When the match is borderline, the claim is counted as not from the document.

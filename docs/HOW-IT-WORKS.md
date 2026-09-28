@@ -1,11 +1,10 @@
-# How auditlm works, step by step
+# How AI Response Audit works, step by step
 
-This walks through what happens when auditlm checks an AI answer against its source
-document, with examples. It shows the exact requests sent to Jev and the answers Jev sent
-back. All the examples are real: they come from the test answer
-`tests/fixtures/mh-1-answer.md`, checked against the abridged encyclical *Magnifica
-Humanitas*, plus one claim from `tcc-1-answer.md`, checked against *The Tragedy of the
-Cognitive Commons*.
+This walks through what happens when AI Response Audit checks an AI answer against its source
+document, with examples. It shows the exact requests sent to Jev and the answers Jev sent back. All
+the examples are real: they come from the test answer `tests/fixtures/mh-1-answer.md`, checked
+against the abridged encyclical *Magnifica Humanitas*, plus one claim from `tcc-1-answer.md`,
+checked against *The Tragedy of the Cognitive Commons*.
 
 For what is being built and why, see [PRD.md](PRD.md). For the label definitions, see
 [labels.md](../skills/audit/reference/labels.md).
@@ -17,10 +16,10 @@ For what is being built and why, see [PRD.md](PRD.md). For the label definitions
 ```mermaid
 flowchart TD
     doc["Source document"] -->|ingest.py| passages[("Passages")]
-    answer["AI answer"] -->|audit.py| claims["Claims: sentences and list items"]
+    answer["AI answer"] -->|audit.py| claims["Claims: one per sentence,<br/>including list items"]
     claims --> s1{"Step 1 · Jev: worth checking, or filler?<br/>(1 request)"}
-    s1 -->|"filler: p below 0.50"| skipped["Skipped: shown in italics, no label"]
-    s1 -->|"worth checking: p 0.50 or more"| s2["Step 2 · Code: keyword search<br/>→ 20 candidate passages<br/>(no request)"]
+    s1 -->|"filler: p below 0.20"| skipped["Not checked: shown in italics,<br/>listed under Lines not checked"]
+    s1 -->|"worth checking: p 0.20 or more"| s2["Step 2 · Code: keyword search<br/>→ 20 candidate passages<br/>(no request)"]
     passages -.-> s2
     s2 --> s3{"Step 3 · Jev: which candidate<br/>is this claim about?<br/>(1 request)"}
     s3 -->|"a candidate gets 10% or more"| s4["Step 4 · Jev, for each chosen passage (up to 3):<br/>how does the claim relate to it,<br/>and which sentence is the evidence?<br/>(1 request each)"]
@@ -36,13 +35,13 @@ flowchart TD
 
 Step 1 doesn't look at the document: its request contains no passages. It only decides
 whether a sentence is worth checking. Whether the sentence is supported by the document is
-decided in steps 3–5. (In the current code, steps 2 and 3 start at the same time as step 1, to
-save time. For a filler line their results are thrown away; see Example 5.)
+decided in steps 3–5. A line that Step 1 judges to be filler goes no further: no search,
+and no other request.
 
 Code does everything exact: splitting text, keyword search, counting shared words,
 thresholds, and writing the report. Jev answers only narrow questions, and it answers with
 probabilities instead of text. A typical claim takes 3 requests. The encyclical answer below
-has 16 claims and took 58 requests, 132,000 input tokens and **$0.0055**.
+has 16 claims and took 47 requests, costing about **half a cent**.
 
 ---
 
@@ -69,8 +68,9 @@ with a page number as the locator, such as `"p. 17–18"`.
 
 ### The answer becomes claims
 
-`audit.py` splits the answer into claims: sentences and list items. Headings aren't
-claims; they become context. Each claim keeps its section heading, its list lead-in (if it
+`audit.py` splits the answer into claims, one per sentence. List items are split into
+sentences too, and a bare list-item phrase such as "clear boundaries" is one claim. Headings
+aren't claims; they become context. Each claim keeps its section heading, its list lead-in (if it
 is a list item), and the sentence before it. Jev needs these to understand words like
 "they" or "this". The answer's third bullet becomes this claim:
 
@@ -91,15 +91,16 @@ is a list item), and the sentence before it. Jev needs these to understand words
 
 Every request goes to `POST https://api.typesafe.ai/v1/systemone` and has three parts:
 
-- **`state`**: the facts Jev may use: the document title, the claim, its context, and a
-  passage when one is being judged.
-- **`model`**: which Jev to use. auditlm sends `jev-latest`, and the response names the
+- **`state`**: the facts Jev may use: the claim, its context, and a passage when one is
+  being judged. The document's title is sent only with the Step 1 (filler) question, the
+  one question that has no passage to go on.
+- **`model`**: which Jev to use.  AI Response Auditsends `jev-latest`, and the response names the
   actual version (`jev-1.13.0`).
 - **`questions`**: one or more named questions. Each has a `type`, the `instructions`, and,
   for a Choice, the options (`criteria`). Backticked names in the instructions, such as
   `` `sentence` ``, point to fields in the state.
 
-auditlm uses two kinds of question:
+AI Response Audit uses two kinds of question:
 
 | Type | Asks | Answer |
 |---|---|---|
@@ -109,14 +110,13 @@ auditlm uses two kinds of question:
 ### A complete request, exactly as sent
 
 This is the request from step 4 of Example 1 below, in full, as captured from the HTTP
-body auditlm sent. It asks **three questions about the same state in one request**:
+body AI Response Audit sent. It asks **three questions about the same state in one request**:
 `relation` (a Choice), `specific` (a Noul) and `evidence` (a Choice between the passage's
 own sentences).
 
 ```json
 {
   "state": {
-    "document": "Magnifica Humanitas: Encyclical Letter of Pope Leo XIV on Safeguarding the Human Person in the Time of Artificial Intelligence (abridged)",
     "sentence": "What AI calls learning is statistical adaptation from data and feedback, not inner growth.",
     "context": {
       "section": "What AI is and isn't",
@@ -129,7 +129,7 @@ own sentences).
   "questions": {
     "relation": {
       "type": "choice",
-      "instructions": "An AI assistant wrote `sentence` in an answer about the document `document`. How does `passage`, an excerpt from that document (from the section `passage_section`, when given), bear on `sentence`? `context`, when present, gives the answer's section heading, list lead-in, and previous sentence only to resolve what `sentence` refers to; judge `sentence` itself. A list item continues its `context.list_lead_in`: the item 'monitoring' under the lead-in 'Ostrom's design principles:' claims that monitoring is one of Ostrom's design principles.",
+      "instructions": "How does `passage` (from the section `passage_section`, when given) bear on `sentence`? `context` only resolves what `sentence` refers to; judge `sentence` itself. A list item continues its `context.list_lead_in`: under 'Ostrom's principles:', the item 'monitoring' claims that monitoring is one of them.",
       "criteria": {
         "restates": "The sentence says what the passage says, in the same or other words, or condenses it into a shorter or more general statement, without adding claims or changing details.",
         "infers_from": "The passage doesn't state the sentence's point, but the sentence is a fair conclusion drawn from what it says.",
@@ -139,11 +139,11 @@ own sentences).
     },
     "specific": {
       "type": "noul",
-      "instructions": "An AI assistant wrote `sentence` in an answer about the document `document`. Does `sentence` contain at least one specific fact, detail, example, or statement that appears in `passage`, beyond sharing its topic or general terms? `context`, when present, gives the answer's section heading, list lead-in, and previous sentence only to resolve what `sentence` refers to; judge `sentence` itself. A list item continues its `context.list_lead_in`: the item 'monitoring' under the lead-in 'Ostrom's design principles:' claims that monitoring is one of Ostrom's design principles."
+      "instructions": "Does `sentence` contain at least one specific fact, detail, example, or statement that appears in `passage`, beyond sharing its topic or general terms? `context` only resolves what `sentence` refers to; judge `sentence` itself. A list item continues its `context.list_lead_in`: under 'Ostrom's principles:', the item 'monitoring' claims that monitoring is one of them."
     },
     "evidence": {
       "type": "choice",
-      "instructions": "An AI assistant wrote `sentence` in an answer about the document `document`. Which sentence of `passage` does `sentence` rely on most directly? `context`, when present, gives the answer's section heading, list lead-in, and previous sentence only to resolve what `sentence` refers to; judge `sentence` itself. A list item continues its `context.list_lead_in`: the item 'monitoring' under the lead-in 'Ostrom's design principles:' claims that monitoring is one of Ostrom's design principles.",
+      "instructions": "Which sentence of `passage` does `sentence` rely on most directly? `context` only resolves what `sentence` refers to; judge `sentence` itself. A list item continues its `context.list_lead_in`: under 'Ostrom's principles:', the item 'monitoring' claims that monitoring is one of them.",
       "criteria": {
         "E1": "Even when these tools are described as capable of “learning,” their way of doing so is different from that of a human person.",
         "E2": "It is not the experience of those who allow themselves to be shaped by life and grow over time through choices, mistakes, forgiveness and fidelity.",
@@ -163,17 +163,17 @@ own sentences).
     "relation": {
       "type": "choice",
       "choice": "restates",
-      "confidence": 0.98,
+      "confidence": 0.96,
       "probabilities": {
-        "restates": 0.99,
-        "unrelated": 0.0,
+        "restates": 0.98,
+        "unrelated": 0.02,
         "infers_from": 0.0,
-        "partly": 0.01
+        "partly": 0.0
       }
     },
     "specific": {
       "type": "noul",
-      "noul": 0.96
+      "noul": 0.97
     },
     "evidence": {
       "type": "choice",
@@ -181,13 +181,13 @@ own sentences).
       "confidence": 1.0,
       "probabilities": {
         "E3": 1.0,
-        "E1": 0.0,
-        "E2": 0.0
+        "E2": 0.0,
+        "E1": 0.0
       }
     }
   },
   "usage": {
-    "input_tokens": 1177,
+    "input_tokens": 1005,
     "output_tokens": 109
   }
 }
@@ -201,12 +201,13 @@ What to notice:
   `evidence`).
 - A Choice answer has probabilities for every option. A Noul answer is a single number.
 - `usage` counts the tokens. Only input tokens are billed, at $0.042 per million, so this
-  request cost about $0.00005.
+  request cost about $0.00004.
 
-auditlm caches every answer by the exact request, so re-running an unchanged audit costs
+AI Response Audit caches every answer by the exact request, so re-running an unchanged audit costs
 nothing. Caching also keeps results stable: sending the same request again can give slightly
-different numbers. A repeat of this request gave `restates` 1.00 and `specific` 0.97
-instead of 0.99 and 0.96.
+different numbers. The response above was captured by sending this request again for this
+document. The answer the audit actually used, from the cache, had `restates` 0.96 and
+`specific` 0.96; this repeat gave 0.98 and 0.97. Steps 4 and 5 below use the cached answer.
 
 ---
 
@@ -224,18 +225,18 @@ This request contains no passages, only the sentence, its context, and the docum
 ```json
 {
   "state": {
-    "document": "Magnifica Humanitas: Encyclical Letter of Pope Leo XIV on Safeguarding the Human Person in the Time of Artificial Intelligence (abridged)",
     "sentence": "What AI calls learning is statistical adaptation from data and feedback, not inner growth.",
     "context": {
       "section": "What AI is and isn't",
       "previous_sentence": "They have no body, no experiences and no moral conscience."
-    }
+    },
+    "document": "Magnifica Humanitas: Encyclical Letter of Pope Leo XIV on Safeguarding the Human Person in the Time of Artificial Intelligence (abridged)"
   },
   "model": "jev-latest",
   "questions": {
     "claim": {
       "type": "noul",
-      "instructions": "Does `sentence`, from an AI assistant's answer about the document `document`, make a claim about the document or its subject, rather than being a greeting, a transition, an offer of further help, or a remark about the answer itself? `context`, when present, gives the answer's section heading, list lead-in, and previous sentence only to resolve what `sentence` refers to; judge `sentence` itself. A list item continues its `context.list_lead_in`: the item 'monitoring' under the lead-in 'Ostrom's design principles:' claims that monitoring is one of Ostrom's design principles."
+      "instructions": "Does `sentence`, from an AI assistant's answer about `document`, make a claim about the document or its subject, rather than being a greeting, a transition, an offer of help, or a remark about the answer itself? `context` only resolves what `sentence` refers to; judge `sentence` itself. A list item continues its `context.list_lead_in`: under 'Ostrom's principles:', the item 'monitoring' claims that monitoring is one of them."
     }
   }
 }
@@ -249,17 +250,17 @@ This request contains no passages, only the sentence, its context, and the docum
   "answers": {
     "claim": {
       "type": "noul",
-      "noul": 0.97
+      "noul": 0.96
     }
   },
   "usage": {
-    "input_tokens": 495,
+    "input_tokens": 466,
     "output_tokens": 20
   }
 }
 ```
 
-0.97 is well above the 0.50 cutoff, so the sentence is worth checking and goes on to step 2.
+0.96 is well above the 0.20 cutoff, so the sentence is worth checking and goes on to step 2.
 
 ### Step 2: Shortlist candidate passages (code, no request)
 
@@ -284,7 +285,6 @@ rating each on its own. "None of these" is an option too.
 ```json
 {
   "state": {
-    "document": "Magnifica Humanitas: Encyclical Letter of Pope Leo XIV on Safeguarding the Human Person in the Time of Artificial Intelligence (abridged)",
     "sentence": "What AI calls learning is statistical adaptation from data and feedback, not inner growth.",
     "context": {
       "section": "What AI is and isn't",
@@ -295,7 +295,7 @@ rating each on its own. "None of these" is an option too.
   "questions": {
     "addresses": {
       "type": "choice",
-      "instructions": "An AI assistant wrote `sentence` in an answer about the document `document`. Which passage from the document addresses the specific point `sentence` makes (its claim, names, numbers, examples, or attributions), whether the passage agrees with it or not? <shortened: context note>",
+      "instructions": "Which passage addresses the specific point `sentence` makes (its claim, names, numbers, examples, or attributions), whether the passage agrees with it or not? <shortened: context note>",
       "criteria": {
         "P028": "[CHAPTER THREE: TECHNOLOGY AND DOMINANCE. THE GRANDEUR OF HUMANITY IN LIGHT OF THE PROMISES OF AI › Artificial intelligence] Even when these tools are described as capable of “learning,” their way of doing so is different from that of a human person. It is not the experience of those who allow themselves to be shaped by life and grow over time through choices, mistakes, forgiveness and fidelity. Rather, it is a form of statistical adaptation based on data and feedback, which can be very effective, but does not imply inner growth.",
         "P036": "[CHAPTER THREE: TECHNOLOGY AND DOMINANCE. THE GRANDEUR OF HUMANITY IN LIGHT OF THE PROMISES OF AI › Artificial intellige <shortened>",
@@ -318,47 +318,48 @@ rating each on its own. "None of these" is an option too.
       "choice": "P028",
       "confidence": 1.0,
       "probabilities": {
-        "P034": 0.0,
-        "P047": 0.0,
-        "P079": 0.0,
-        "P044": 0.0,
-        "P068": 0.0,
-        "P061": 0.0,
-        "P037": 0.0,
-        "none": 0.0,
-        "P076": 0.0,
-        "P038": 0.0,
-        "P029": 0.0,
         "P028": 1.0,
-        "P055": 0.0,
-        "P046": 0.0,
-        "P015": 0.0,
-        "P025": 0.0,
-        "P027": 0.0,
-        "P045": 0.0,
+        "P036": 0.0,
+        "P079": 0.0,
         "P092": 0.0,
+        "P055": 0.0,
+        "P045": 0.0,
+        "P076": 0.0,
+        "P047": 0.0,
+        "P037": 0.0,
+        "P034": 0.0,
+        "P044": 0.0,
+        "P025": 0.0,
+        "P046": 0.0,
+        "P027": 0.0,
+        "P061": 0.0,
         "P040": 0.0,
-        "P036": 0.0
+        "P029": 0.0,
+        "P015": 0.0,
+        "P038": 0.0,
+        "P068": 0.0,
+        "none": 0.0
       }
     }
   },
   "usage": {
-    "input_tokens": 4763,
+    "input_tokens": 4677,
     "output_tokens": 227
   }
 }
 ```
 
-At 4,763 input tokens, this is the most expensive request type, because every candidate's
+At 4,677 input tokens, this is the most expensive request type, because every candidate's
 full text is sent. The rule in code: every passage with at least 10% of the probability goes
 to step 4, up to 3 passages. Here only P028 (¶99) qualifies.
 
 ### Step 4: How does the claim relate to the chosen passage? (1 request)
 
-This is the request and response shown in full under [How a request to Jev is built](#how-a-request-to-jev-is-built).
-The state now includes the passage, and three questions go in one request:
+This is the request shown in full under [How a request to Jev is built](#how-a-request-to-jev-is-built).
+The state now includes the passage, and three questions go in one request. The answers the
+audit used were:
 
-- `relation` (Choice): restates, infers from, partly, or unrelated → **restates, 0.99**;
+- `relation` (Choice): restates, infers from, partly, or unrelated → **restates, 0.96**;
 - `specific` (Noul): does the claim take a specific fact from the passage? → **0.96**;
 - `evidence` (Choice): which of the passage's three sentences is the evidence? → **E3, 1.00**.
 
@@ -376,7 +377,7 @@ passage, ¶99:
 | Rule | This claim | Result |
 |---|---|---|
 | 8+ consecutive words shared with the passage, or a quotation found in it word for word → **quoted** | 3 shared words | no |
-| p(restates) + p(infers_from) ≥ 0.70 → **paraphrased** (or **inferred**, if infers_from is larger) | 0.99 + 0.00 = 0.99 | **paraphrased** |
+| p(restates) + p(infers_from) ≥ 0.70 → **paraphrased** (or **inferred**, if infers_from is larger) | 0.96 + 0.00 = 0.96 | **paraphrased** |
 | that + p(partly) ≥ 0.60, *and* specific ≥ 0.50 → **partly** | (not needed) | |
 | otherwise → **not from the document** | | |
 
@@ -414,19 +415,19 @@ only the answers differ.
   "addresses": {
     "type": "choice",
     "choice": "none",
-    "confidence": 0.62,
+    "confidence": 0.66,
     "probabilities": {
-      "none": 0.65,
-      "P036": 0.31,
-      "P086": 0.03,
-      "P063": 0.01,
-      "<shortened>": "the other 17 options, all 0.0"
+      "none": 0.69,
+      "P036": 0.2,
+      "P086": 0.08,
+      "P044": 0.01,
+      "<shortened>": "the other 17 options, each 0.01 or less"
     }
   }
 }
 ```
 
-"None" leads, but P036 (¶106) has 31% of the probability. That's above the 10% cutoff, so
+"None" leads, but P036 (¶106) has 20% of the probability. That's above the 10% cutoff, so
 P036 still goes to step 4. This is deliberate. When a passage gives *different* facts about
 the same thing, Jev tends to answer "none" here, so the real judgment is left to step 4.
 
@@ -438,12 +439,12 @@ the passage. The `answers` part of the response, in full:
   "relation": {
     "type": "choice",
     "choice": "partly",
-    "confidence": 0.7,
+    "confidence": 0.36,
     "probabilities": {
-      "unrelated": 0.06,
-      "restates": 0.0,
-      "infers_from": 0.16,
-      "partly": 0.78
+      "unrelated": 0.25,
+      "restates": 0.01,
+      "infers_from": 0.22,
+      "partly": 0.52
     }
   },
   "specific": {
@@ -453,13 +454,13 @@ the passage. The `answers` part of the response, in full:
   "evidence": {
     "type": "choice",
     "choice": "E4",
-    "confidence": 1.0,
+    "confidence": 0.98,
     "probabilities": {
       "E2": 0.0,
-      "E1": 0.0,
       "E5": 0.0,
-      "E4": 1.0,
-      "E3": 0.0
+      "E1": 0.01,
+      "E4": 0.98,
+      "E3": 0.01
     }
   }
 }
@@ -472,13 +473,13 @@ its one chosen passage, ¶106. **This claim** is S11's value for what the rule c
 | Rule | This claim | Result |
 |---|---|---|
 | 8+ consecutive words shared with the passage, or a quotation found in it word for word → **quoted** | 1 shared word | no |
-| p(restates) + p(infers_from) ≥ 0.70 → **paraphrased** (or **inferred**, if infers_from is larger) | 0.00 + 0.16 = 0.16 | no |
-| that + p(partly) ≥ 0.60, *and* specific ≥ 0.50 → **partly** | 0.16 + 0.78 = 0.94, but specific = 0.10 | no |
+| p(restates) + p(infers_from) ≥ 0.70 → **paraphrased** (or **inferred**, if infers_from is larger) | 0.01 + 0.22 = 0.23 | no |
+| that + p(partly) ≥ 0.60, *and* specific ≥ 0.50 → **partly** | 0.23 + 0.52 = 0.75, but specific = 0.10 | no |
 | otherwise → **not from the document** | | **not from the document** |
 
 The third row is the one that matters. The probabilities alone would make the claim
 *partly* from ¶106, but **specific = 0.10**: the claim shares the passage's *topic* ("legal
-frameworks"), not any fact from it. Because 0.94 is at least 0.30, ¶106 is still shown to
+frameworks"), not any fact from it. Because 0.75 is at least 0.30, ¶106 is still shown to
 the reader as the closest passage.
 
 This is why the `specific` question exists. Asked alone, the `partly` option is read
@@ -492,7 +493,7 @@ The reader sees:
 
 and, under "Not from the document":
 
-> 3. The European Union's AI Act, which took effect in 2024, is one example of the kind of legal framework he has in mind. *Closest passage: ¶106.*
+> 2. The European Union's AI Act, which took effect in 2024, is one example of the kind of legal framework he has in mind. *Closest passage: ¶106.*
 
 ---
 
@@ -501,10 +502,15 @@ and, under "Not from the document":
 **Claim S09:** *"He calls for prudence, rigorous evaluation and even, at times, a slower pace
 in adopting AI."*
 
-Jev chose ¶106 with probability 1.0, and relate returned restates 0.88. But the label is
-settled before those numbers matter. The claim shares **14 consecutive words** with the
-passage ("calling for prudence, rigorous evaluation and even, at times, a slower pace in
-adopting AI"), and the rule is that 8 or more shared words is **quoted**.
+Jev chose ¶106 in step 3 with probability 1.00. In step 5 the first rule already applies, so
+the label is settled by code before Jev's step 4 numbers matter:
+
+| Rule | This claim | Result |
+|---|---|---|
+| 8+ consecutive words shared with the passage, or a quotation found in it word for word → **quoted** | 14 shared words: "for prudence, rigorous evaluation and even, at times, a slower pace in adopting AI" | **quoted** |
+| p(restates) + p(infers_from) ≥ 0.70 → **paraphrased** (or **inferred**) | (not needed; it was 0.90 + 0.01) | |
+| that + p(partly) ≥ 0.60, *and* specific ≥ 0.50 → **partly** | (not needed) | |
+| otherwise → **not from the document** | | |
 
 Counting shared words is exact, so it's done in code, not by asking Jev.
 
@@ -525,28 +531,28 @@ matching words, and Jev rejected them all. The `answers` part of the response:
   "addresses": {
     "type": "choice",
     "choice": "none",
-    "confidence": 0.97,
+    "confidence": 0.84,
     "probabilities": {
-      "none": 0.98,
-      "P049": 0.02,
-      "<shortened>": "the other 13 options, all 0.0"
+      "none": 0.85,
+      "P049": 0.08,
+      "<shortened>": "the other 13 options, each 0.03 or less"
     }
   }
 }
 ```
 
-No candidate reached 10%, so auditlm doesn't trust the keyword search and checks **every**
+No candidate reached 10%, so AI Response Audit doesn't trust the keyword search and checks **every**
 passage. It sends 6 Choice requests, one per group of 20 passages (P001–P020, P021–P040,
 P041–P060, P061–P080, P081–P100 and P101–P105):
 
 | Group | Answer |
 |---|---|
-| P001–P020 | none 0.94 · P012 0.05 |
-| P021–P040 | none 0.96 · P039 0.03 |
-| P041–P060 | none 0.98 · P059 0.01 |
-| P061–P080 | none 0.98 · P080 0.01 |
-| P081–P100 | none 0.99 · P100 0.01 |
-| P101–P105 | none 1.00 |
+| P001–P020 | none 0.81 · P012 0.09 |
+| P021–P040 | none 0.85 · P039 0.08 |
+| P041–P060 | none 0.91 · P060 0.03 |
+| P061–P080 | none 0.95 · P062 0.02 |
+| P081–P100 | none 0.89 · P091 0.05 |
+| P101–P105 | none 0.97 · P104 0.02 |
 
 No passage in any group reached 10%, so the claim is **not from the document**, with no
 closest passage.
@@ -564,8 +570,14 @@ requests, and only for claims the shortlist can't place.
 response to the step 1 request:
 
 ```json
-{ "claim": { "type": "noul", "noul": 0.02 } }
+{
+  "claim": {
+    "type": "noul",
+    "noul": 0.04
+  }
+}
 ```
 
-0.02 is below 0.50, so the line is **skipped**. It appears in the report in italics, with no
-label.
+0.04 is below 0.20, so the line isn't checked. It appears in the report in italics, with no
+label, and is listed under "Lines not checked", so a reader can see everything the audit left
+out. No other request is sent for it.

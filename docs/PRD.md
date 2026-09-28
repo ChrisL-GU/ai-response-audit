@@ -1,11 +1,11 @@
-# auditlm: Project Resource Document
+# AI Response Audit: Project Resource Document
 
 **Status:** proof of concept built (see §6) · **Owner:** Christopher Lopes · **Last updated:** 2026-09-28
 
-auditlm shows which parts of an AI assistant's answer came from a source document, and
-which did not. This document describes what is being built, why, how it works, and how to
-tell whether it works, in enough detail that someone else could build their own version.
-Items marked **(proposed)** are starting values to confirm. Items marked **TBD** are open.
+AI Response Audit shows which parts of an AI assistant's answer came from a source document, and
+which did not. This document describes what is being built, why, how it works, and how to tell
+whether it works, in enough detail that someone else could build their own version. Items marked
+**(proposed)** are starting values to confirm. Items marked **TBD** are open.
 
 ---
 
@@ -23,7 +23,7 @@ and how it was used (quoted, paraphrased, inferred, or partly). Everything else 
 marked as not from the document. The judgments come from code and Jev (TypeSafe),
 not from a generative LLM, so the auditor is independent of the kind of system it audits.
 
-**Success criteria (proposed):**
+**Success criteria (confirmed 2026-09-28):**
 
 All accuracy figures are measured against hand labels, not Jev's own probabilities.
 
@@ -56,7 +56,7 @@ All accuracy figures are measured against hand labels, not Jev's own probabiliti
 
 ### User flow
 
-1. The user runs `/auditlm:audit <document> <answer>` in Claude Code, or runs it with just
+1. The user runs `/ai-response-audit:audit <document> <answer>` in Claude Code, or runs it with just
    the document and pastes the answer into the chat.
 2. The plugin splits the document into passages and the answer into claims, judges each
    claim, and writes `report.md` next to the document.
@@ -125,8 +125,8 @@ criterion.
   observe the assistant's context or retrieval.
 - **Retrieved-excerpt mode.** Auditing against the excerpts a RAG tool retrieved, rather
   than the whole document.
-- **A web page or any output other than Markdown.** A web page will be redesigned after
-  the Markdown report is right.
+- **A web page or any output other than Markdown.** The Markdown report renders on GitHub,
+  which is enough for now (decided 2026-09-28).
 - **Other hosts:** claude.ai, Cowork, Claude Code on the web, or a hosted service.
 - **Several source documents per audit.**
 - **Word-level attribution inside a sentence.** Mixed sentences are labelled *partly*.
@@ -277,7 +277,7 @@ thresholds are in §4.5.
 - Retries with backoff on 408, 429 and 5xx (up to 6 retries, 20 s maximum wait).
   Concurrency is capped at 12 requests.
 - **Cache:** every request is keyed by a SHA-256 of its exact state and questions and
-  stored in `~/.cache/auditlm/`. Re-runs and threshold changes cost nothing.
+  stored in `~/.cache/ai-response-audit/`. Re-runs and threshold changes cost nothing.
 
 ### 4.3 Security and privacy
 
@@ -289,46 +289,50 @@ thresholds are in §4.5.
 - Jev doesn't treat document text as potentially hostile. A document containing
   instructions could skew its judgments. The report is advisory.
 
-### 4.4 Jev questions (starting wording)
+### 4.4 Jev questions (as built)
 
-These wordings were refined on the prototype. The relate options are **proposed** in their
-new form (paraphrase now includes summaries, and *partly* includes altered details) and
-must be validated on the test set. Every question
-includes this context note:
+The exact wording is in `skills/audit/scripts/audit.py`. [HOW-IT-WORKS.md](HOW-IT-WORKS.md)
+shows complete requests as sent. Every question ends with this context note:
 
-> `context`, when present, gives the answer's section heading, list lead-in, and previous
-> sentence only to resolve what `sentence` refers to; judge `sentence` itself. A list
-> item continues its `context.list_lead_in`: the item 'monitoring' under the lead-in
-> 'Ostrom's design principles:' claims that monitoring is one of Ostrom's design
-> principles.
+> `context` only resolves what `sentence` refers to; judge `sentence` itself. A list item
+> continues its `context.list_lead_in`: under 'Ostrom's principles:', the item 'monitoring'
+> claims that monitoring is one of them.
+
+The document title is sent only with the filler question, which has no passage to go on.
 
 **Filler (Noul), state `{document, sentence, context}`:**
-> Does `sentence`, from an AI assistant's answer about the document `document`, make a
-> claim about the document or its subject, rather than being a greeting, a transition, an
-> offer of further help, or a remark about the answer itself?
+> Does `sentence`, from an AI assistant's answer about `document`, make a claim about the
+> document or its subject, rather than being a greeting, a transition, an offer of help, or
+> a remark about the answer itself?
 
-**Choose (Choice), state `{document, sentence, context}`.** The options are the candidate
-passage IDs, each described by its text (with its section path), plus `none`:
-> Which passage from the document addresses the specific point `sentence` makes (its
-> claim, names, numbers, examples, or attributions), whether the passage agrees with it or
-> not?
+**Choose (Choice), state `{sentence, context}`.** The options are the candidate passage
+IDs, each described by its section path and text, plus `none`:
+> Which passage addresses the specific point `sentence` makes (its claim, names, numbers,
+> examples, or attributions), whether the passage agrees with it or not?
 
 `none`: "None of these passages discusses what the sentence is about; at most they share
 its general topic. A passage that gives different facts about the same thing (other
 numbers, names, or conclusions) does address it."
 
-**Relate (Choice), state `{document, sentence, context, passage, passage_section}`:**
-> How does `passage`, an excerpt from the document, bear on `sentence`?
+**Relate, state `{sentence, context, passage, passage_section}`.** Three questions in one
+request:
 
-| Option | Criterion |
-|---|---|
-| `restates` | The sentence says what the passage says, in the same or other words, or condenses it into a shorter or more general statement, without adding claims or changing details. |
-| `infers_from` | The passage doesn't state the sentence's point, but the sentence is a fair conclusion drawn from what it says. |
-| `partly` | Part of the sentence comes from the passage and another part does not: it adds a claim the passage doesn't make, or alters a detail such as a number, a name, who said what, or the direction of an effect. |
-| `unrelated` | The passage does not address the sentence's point. |
+- `relation` (Choice):
+  > How does `passage` (from the section `passage_section`, when given) bear on `sentence`?
 
-**Evidence (Choice), same state.** The options are the passage's own sentences:
-> Which sentence of `passage` does `sentence` rely on most directly?
+  | Option | Criterion |
+  |---|---|
+  | `restates` | The sentence says what the passage says, in the same or other words, or condenses it into a shorter or more general statement, without adding claims or changing details. |
+  | `infers_from` | The passage doesn't state the sentence's point, but the sentence is a fair conclusion drawn from what it says. |
+  | `partly` | Part of the sentence comes from the passage and another part does not: it adds a claim the passage doesn't make, or alters a detail such as a number, a name, who said what, or the direction of an effect. |
+  | `unrelated` | The passage does not address the sentence's point. |
+
+- `specific` (Noul):
+  > Does `sentence` contain at least one specific fact, detail, example, or statement that
+  > appears in `passage`, beyond sharing its topic or general terms?
+
+- `evidence` (Choice). The options are the passage's own sentences:
+  > Which sentence of `passage` does `sentence` rely on most directly?
 
 ### 4.5 Policy (code; all values proposed, tune on non-held-out answers only)
 
@@ -339,9 +343,9 @@ numbers, names, or conclusions) does address it."
 | Quoted: consecutive words shared with the passage | ≥ 8 |
 | From the document: p(restates + infers_from) | ≥ 0.70 |
 | Paraphrased vs inferred: whichever of p(restates), p(infers_from) is larger | — |
-| Partly: p(partly) + p(restates) + p(infers_from) | ≥ 0.60 |
+| Partly: p(partly) + p(restates) + p(infers_from) | ≥ 0.60, and `specific` ≥ 0.50 |
 | Below these thresholds: labelled *not from the document*, closest passage shown as a possible source | — |
-| Filler: Noul below | 0.50 |
+| Filler: Noul below | 0.20 (only clear filler goes unchecked) |
 
 The label shown is the best-supported per-passage relation. Probabilities are grouped
 before thresholds are applied, because Jev often splits probability between adjacent
@@ -368,6 +372,8 @@ Plain, scannable, no assistant commentary. In order:
    word for word.
 5. **Not from the document.** A numbered list of those claims, each with its possible
    source if one was close.
+5a. **Lines not checked.** Every line judged to be filler, so the reader can see what the
+   audit left out.
 6. **Parts of the document not used.** A list of sections, each with the number of claims
    that drew on it.
 7. **How to read this.** Three to five lines defining the labels, and one line on method.
@@ -386,9 +392,10 @@ The terminal output prints sections 1, 2, 5 and 6, plus the path to the full rep
   - Success criteria reported on the held-out set.
 - **v1.1.**
   - 2+ real answers from other assistants, labelled blind.
-  - Section-heading detection for PDFs.
+  - Section-heading detection for PDFs (open; PDF reports list page ranges until then).
+  - List lead-ins separated from their list by a blank line (currently not captured; the
+    first item sees the lead-in only as its previous sentence, later items not at all).
   - A tuned precision/recall balance.
-  - A redesigned shareable web page built from `audit.json`.
 - **v2.0.**
   - Retrieved-excerpt mode, if the excerpts an assistant retrieved are available.
   - Optional accuracy layer (misquotes, page citations).
@@ -470,6 +477,41 @@ Run time was not measured.
 - **Where each part came from** groups entries by locator and shortens long heading paths
   to "first › … › last". The report doesn't show claim IDs, because the reader never sees
   them in the annotated answer.
+
+### Revision after review (2026-09-28)
+
+Three changes came out of reviewing [HOW-IT-WORKS.md](HOW-IT-WORKS.md):
+
+1. **Filler cutoff lowered from 0.50 to 0.20,** so only clear filler goes unchecked. The
+   report now lists every unchecked line under "Lines not checked".
+2. **Shorter instructions.** The context note was cut from 47 words to 29. The document
+   title is now sent only with the filler question. Requests are 2–15% smaller (relate:
+   1,177 → 1,005 input tokens).
+3. The diagram and docs now describe claims as one per sentence, including list items.
+4. **Filler question first.** Step 1 is now answered before any search, so a filler line
+   costs 1 request instead of about 8. Labels are unchanged; the encyclical answer went from
+   53 to 47 requests.
+
+Re-run on all six test answers (about $0.02):
+
+| Metric | Target | Before | After |
+|---|---|---|---|
+| Precision of "from the document" | ≥ 90% | 100% | 100% |
+| Recall of "from the document" | ≥ 80% | 90.8% | 93.8% |
+| Source accuracy | ≥ 85% | 93.2% | 95.1% |
+| False "used" | ≤ 5% | 0% | 0% |
+| Filler recognized | (not a target) | 8/13 | 6/13 |
+
+- As expected, the lower cutoff checks more borderline lines. Most of them end up "not from
+  the document", which is harmless but lengthens that list.
+- The held-out answers had been run before this revision, so they're no longer strictly
+  unseen. The changes came from the review, not from their results.
+- **The real, unlabelled answer shifted more than the test answers.** It went from 58 to
+  49 claims from the document, from 7 to 15 partly, and from 1 to 3 not from the document.
+  Without hand labels it's unknown which run is closer to the truth. This is the strongest
+  argument for labelling real answers (v1.1).
+
+Total Jev spend for the whole project so far: about $0.10.
 
 ## Appendix A: Repository layout
 

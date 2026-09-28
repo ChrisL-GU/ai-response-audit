@@ -12,7 +12,7 @@ source document, and if so, from where and how?
 | **inferred** | A conclusion the document supports but doesn't state. |
 | **partly** | Part of the claim is a specific fact from a passage and part isn't: an added claim, or a changed detail. |
 | **not from the document** | No passage says it. It may come from the assistant's training, its own reasoning, or the user's question. That doesn't make it wrong. |
-| *skipped* (italics) | Not a claim: a greeting, transition, or offer of help. |
+| *not checked* (italics) | Not a claim: a greeting, transition, or offer of help. Listed under "Lines not checked" in the report. |
 
 When a match is borderline, the claim is labelled **not from the document**, and the report
 names the closest passage. Wrongly saying the answer used the document is treated as the
@@ -20,7 +20,8 @@ worse error.
 
 ## How a claim is labelled
 
-1. **Filler?** Jev (Noul): is it a claim about the document or its subject?
+1. **Filler?** Jev (Noul): is it a claim about the document or its subject? Only a line
+   scoring below 0.20 is left unchecked, so borderline lines are still checked.
 2. **Shortlist (code).** Keyword search over the passages and their section headings
    returns the top 20. Passages containing a quotation from the claim are always included.
 3. **Choose.** Jev (Choice): which of these passages addresses the claim's specific point?

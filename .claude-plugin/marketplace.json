@@ -1,5 +1,5 @@
 {
-  "name": "auditlm",
+  "name": "ai-response-audit",
   "owner": {
     "name": "Christopher Lopes"
   },
@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "auditlm",
+      "name": "ai-response-audit",
       "description": "Show which parts of an AI answer came from a source document, using Jev (TypeSafe).",
       "source": "."
     }

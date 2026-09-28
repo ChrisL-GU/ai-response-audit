@@ -2,13 +2,13 @@
 
 Source document: *The Tragedy of the Cognitive Commons: How AI Could Disrupt the Regeneration of Professional Expertise (Lovett, 2026)*
 
-**10 of 15 claims (68% of the answer's words) came from the document.** 0 came partly from it, and 5 did not.
+**9 of 15 claims (61% of the answer's words) came from the document.** 1 came partly from it, and 5 did not. 2 lines weren't checked (listed below).
 
-From the document: 0 quoted · 10 paraphrased · 0 inferred · plus 0 partly
+From the document: 0 quoted · 9 paraphrased · 0 inferred · plus 1 partly
 
 ## The answer, annotated
 
-*Great question.* In 1968, Garrett Hardin described how people acting in their own interest can deplete a shared resource. `[p. 2–3 · paraphrased]` Lovett argues that deep professional expertise is a similar shared resource, which he calls the Cognitive Commons. `[p. 5–6, p. 30 · paraphrased]`
+*Great question.* In 1968, Garrett Hardin described how people acting in their own interest can deplete a shared resource. `[p. 2–3 · paraphrased]` Lovett argues that deep professional expertise is a similar shared resource, which he calls the Cognitive Commons. `[p. 5–6 · partly]`
 
 **How the commons gets depleted**
 
@@ -18,7 +18,7 @@ The paper points to early evidence. `[p. 2, p. 11–12 · paraphrased]` Workers 
 
 **Two kinds of expertise**
 
-The paper distinguishes Internalized Mastery, deep knowledge held by individuals, from Distributed Mastery, skill at orchestrating human-AI systems. `[p. 5–6, p. 1–2 · paraphrased]` Since the second depends on the first, a workforce that never builds deep knowledge will struggle to catch subtle AI errors. `[p. 27, p. 5–6 · paraphrased]` In one experiment, 80.7% of participants spotted errors in AI recommendations but kept following them. `[p. 25–26 · paraphrased]`
+The paper distinguishes Internalized Mastery, deep knowledge held by individuals, from Distributed Mastery, skill at orchestrating human-AI systems. `[p. 1–2, p. 5–6 · paraphrased]` Since the second depends on the first, a workforce that never builds deep knowledge will struggle to catch subtle AI errors. `[p. 27, p. 5–6 · paraphrased]` In one experiment, 80.7% of participants spotted errors in AI recommendations but kept following them. `[p. 25–26 · paraphrased]`
 
 **What to do about it**
 
@@ -42,7 +42,7 @@ Lovett recommends that governments require every firm to reserve 10% of its jobs
   > Introduction In 1968, Garrett Hardin described how rational individuals, acting independently in their own self-interest, inevitably deplete shared resources upon which all depend.
 
 **p. 5–6**
-- *paraphrased*: Lovett argues that deep professional expertise is a similar shared resource, which he calls the Cognitive …
+- *partly*: Lovett argues that deep professional expertise is a similar shared resource, which he calls the Cognitive …
   > This paper introduces the Cognitive Commons as the collective pool of deep human expertise within a profession that functions as a shared resource whose regeneration can no longer be taken for granted.
 - *paraphrased*: The paper distinguishes Internalized Mastery, deep knowledge held by individuals, from Distributed Mastery, …
   > Understanding how this tragedy unfolds requires recognizing that AI-era work demands two forms of expertise: Internalized Mastery, representing deep domain knowledge concentrated within individual minds through sustained deliberate practice, and Distributed Mastery, representing fluency in orchestrating intelligence distributed across humanAI systems.
@@ -59,14 +59,12 @@ Lovett recommends that governments require every firm to reserve 10% of its jobs
 
 **p. 17**
 - *paraphrased*: Organizations used to train new experts as a side effect of needing entry-level workers.
-  > The operational necessity of junior labor was the hidden governance mechanism: commons regeneration occurred as a side effect of normal business operations, not as the product of collective will or institutional design.
-- *paraphrased*: The paper points to early evidence.
-  > In the most AI-exposed occupations, measurable disruption to the regeneration mechanism may be emerging.
+  > Organizations maintained developmental pipelines not because they recognized any stewardship obligation to the profession, but because they needed entry-level workers to perform entry-level work.
 - *paraphrased*: Workers aged 22 to 25 in the most AI-exposed occupations saw a 16% relative drop in employment.
   > Their findings reveal a stark pattern in the most AI-exposed occupations: workers ages 22 to 25 experienced a 16% relative decline in employment between October 2022 and September 2025, even after controlling for firm-level shocks.
 
 **p. 25**
-- *inferred*: Since the second depends on the first, a workforce that never builds deep knowledge will struggle to catch …
+- *paraphrased*: Since the second depends on the first, a workforce that never builds deep knowledge will struggle to catch …
   > This capability fundamentally depends on the internalized domain knowledge, robust mental models, and tacit understanding that constitute Internalized Mastery.
 
 **p. 25–26**
@@ -78,7 +76,7 @@ Lovett recommends that governments require every firm to reserve 10% of its jobs
   > Effective Distributed Mastery requires exactly that internalized foundation to function reliably.
 
 **p. 30**
-- *paraphrased*: Lovett argues that deep professional expertise is a similar shared resource, which he calls the Cognitive …
+- *partly*: Lovett argues that deep professional expertise is a similar shared resource, which he calls the Cognitive …
   > Table 1 Construct Definitions for the Cognitive Commons Framework Construct Definition Key Distinguishing Attribute Cognitive Commons The collective pool of deep professional expertise within a field that functions as a shared resource maintained through ongoing professional practice and degradable through failure of its regeneration mechanism.
 
 **p. 43**
@@ -91,7 +89,14 @@ Lovett recommends that governments require every firm to reserve 10% of its jobs
 2. Similar worries were raised about calculators in math classrooms in the 1970s.
 3. Lovett recommends that governments require every firm to reserve 10% of its jobs for entry-level trainees. *Closest passage: p. 38–39.*
 4. He builds on Elinor Ostrom, who won the Nobel Prize in economics in 2009 for her work on governing common resources. *Closest passage: p. 39–40.*
-5. Lovett's framework is the most convincing account yet of how AI will affect professional work.
+5. Lovett's framework is the most convincing account yet of how AI will affect professional work. *Closest passage: p. 1–2.*
+
+## Lines not checked
+
+Jev judged these lines not to be claims about the document (greetings, transitions, offers of help). If one of them is a claim, the audit didn't check it.
+
+- Great question.
+- Would you like discussion questions based on this?
 
 ## Parts of the document not used
 
@@ -114,5 +119,5 @@ The answer drew on 13 of the document's 105 passages. Stretches not used:
 - **quoted**: uses the document's exact words. **paraphrased**: says what a passage says in other words, including summarizing it. **inferred**: a conclusion the document supports but doesn't state.
 - **partly**: part of the claim is in the document and part isn't, or a detail was changed.
 - **not from the document**: no passage says it. It may come from the assistant's training, its own reasoning, or the question. That doesn't make it wrong.
-- Lines in *italics* aren't claims and weren't checked.
+- Lines in *italics* aren't claims and weren't checked; they are listed under "Lines not checked".
 - Method: keyword search finds candidate passages; Jev (TypeSafe) picks which ones the claim draws on and how; the evidence lines are copied from the document. When the match is borderline, the claim is counted as not from the document.
