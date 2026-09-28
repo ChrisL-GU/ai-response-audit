@@ -1,0 +1,16 @@
+{
+  "name": "auditlm",
+  "owner": {
+    "name": "Christopher Lopes"
+  },
+  "metadata": {
+    "description": "Audit AI responses against their source documents with Jev (TypeSafe)."
+  },
+  "plugins": [
+    {
+      "name": "auditlm",
+      "description": "Audit an AI response against the document it should draw on, using Jev (TypeSafe).",
+      "source": "."
+    }
+  ]
+}

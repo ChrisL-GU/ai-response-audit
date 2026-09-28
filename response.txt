@@ -1,0 +1,59 @@
+Lovett's answer is that professions can avoid the tragedy the way Ostrom's commons do: through governance at several levels at once. The paper calls these ideas hypotheses to test, not recommendations (p. ~1227: "These remain hypotheses about institutional design rather than policy recommendations").
+
+The problem these measures address
+
+For the answer to make sense, you need to know what broke. In the past, professions renewed their expertise by accident. Firms needed juniors to do junior work, and that work trained the next generation of experts. Lovett calls the operational need for junior labor "the hidden governance mechanism." AI removes that need, so a firm that cuts entry-level roles keeps all the savings. The cost is a smaller future pool of experts, and every firm shares that cost. A firm that planned to "hire experienced people later" is relying on training other firms paid for 5–20 years ago.
+
+Recruitment can't fix this. It moves existing experts around but doesn't create new ones. And even juniors who still get hired may skip the "cognitive struggle" that builds real expertise. Lovett calls that "augmentation without internalization."
+
+Three levels of governance
+
+1. Organizational: redesign how AI enters the work
+- Phased AI introduction: novices go through the early developmental stages before they get AI help.
+- Cognitive reserve practices: a minimum period of working independently before AI-augmented work.
+- AI-restricted learning spaces: deliberate practice with no AI assistance.
+- Workflows that make people engage: novices attempt the task themselves, then evaluate and justify, instead of accepting finished output. Everett et al. (2025) found that clinicians who had to engage with the AI's reasoning kept or improved their diagnostic accuracy. Danry et al. (2023) found that AI explanations framed as questions improved people's judgment.
+- The key idea: "How organizations design AI integration matters as much as whether they adopt it." The question is not whether AI weakens expertise but under what design conditions it builds or erodes it.
+
+2. Professional associations: where Ostrom's principles apply most directly
+- Ostrom's eight design principles for long-lasting commons:
+  - clear boundaries
+  - costs in proportion to benefits
+  - collective choice
+  - monitoring
+  - graduated sanctions (often reputational or peer-based)
+  - conflict resolution
+  - the right to organize
+  - nesting local rules within larger systems
+- A polycentric approach: different associations try different combinations, watch the results, and spread what works. Ostrom found that working arrangements come from local experimentation, not from rules imposed from outside.
+- Possible tools:
+  - supervised-practice requirements
+  - standards for developmental infrastructure
+  - voluntary tiered credentials that recognize demonstrated Internalized Mastery without restricting AI-assisted practice
+  - continuing education with periodic AI-free assessment
+- Warning: medicine, law and engineering already have this kind of infrastructure. Tech and financial analysis mostly don't, and that's where Lovett predicts the tragedy will hit hardest.
+
+3. Public policy: invest rather than prohibit
+- Training subsidies in occupations where AI has removed the work that used to build expertise.
+- Tax credits or matching funds for firms that keep developmental pipelines.
+- Competitive grants for associations trying out governan
+- Output metrics that reward quality over volume (from Daley, 2025).
+- Research funding to find which ways of regenerating exp traditional or new.
+- Extending existing risk-based rules in safety-critical fields to recognize the "Validation Tether," the idea that overseeing AI depends on deep domain expertise. Lovett says new regulation is not the first response.
+
+Two cross-cutting requirements
+
+- Monitor the commons, because depletion is hidden. Senios, so the loss only shows up as cohort patterns yearslater. Table 2 proposes indicators:
+  - entry-level hiring ratios
+  - performance without AI, by cohort
+  - detection rates for seeded, plausible-but-wrong AI outputs
+  - training investment compared with AI adoption, by firm
+- Protect both kinds of expertise. The goal isn't to resist AI or bring back pre-AI career paths. It's to keep a cadre with deep domain knowledge large enough to anchor the AI-orchestration skill ("Distributed Mastery"), without stigmatizing that skill.
+
+Where the argument is thinnest
+
+- The profession-wide depletion is a prediction. What's established is narrower: people perform well with AI but that doesn't carry over to working without it.
+- Lovett admits the old path (entry-level jobs in hierarchical firms) may not be the only one. Revived apprenticeships, AI-mediated mentorship or distributed credentialing might do the same job. That makes the most interesting question which new ways of regenerating expertise a profession could deliberately build, not how to protect the old one.
+- Most measures still depend on someone paying the free-rider cost. Voluntary credentials and associations experimenting on their own may not hold up against competitive pressure in exactly the fields with weak associations. The paper names that gap but doesn't close it.
+
+If this is for the reading group, the governance section (pp. ~40–44) paired with Ostrom's eight principles would make a good discussion anchor. Participants could test each principle against a profession they know.

@@ -1,0 +1,73 @@
+{
+  "document": "TragedyOfCognitiveCommons.pdf",
+  "response": "commons-response.md",
+  "note": "Synthetic answer with deliberate errors; hand-labelled. `expect` lists acceptable statuses (| separated). `evidence` holds text that should appear in a passage Jev found to address the claim.",
+  "sentences": [
+    {
+      "starts": "Great question",
+      "expect": "filler"
+    },
+    {
+      "starts": "Lovett borrows Hardin",
+      "expect": "supported",
+      "evidence": [
+        "for its structure, not its fatalism"
+      ]
+    },
+    {
+      "starts": "The paper argues that AI-era",
+      "expect": "supported",
+      "evidence": [
+        "Distributed Mastery, representing fluency"
+      ]
+    },
+    {
+      "starts": "Because the second depends",
+      "expect": "supported|partly supported"
+    },
+    {
+      "starts": "Workers ages 22 to 25",
+      "expect": "supported",
+      "evidence": [
+        "16% relative decline in employment"
+      ]
+    },
+    {
+      "starts": "Employment for older workers",
+      "expect": "contradicted|conflicting",
+      "why": "the paper says it grew by over 8%",
+      "evidence": [
+        "grew by over 8%"
+      ]
+    },
+    {
+      "starts": "In one study",
+      "expect": "supported",
+      "evidence": [
+        "80.7% of participants detected errors"
+      ]
+    },
+    {
+      "starts": "The paper was funded",
+      "expect": "unsupported"
+    },
+    {
+      "starts": "The author concludes",
+      "expect": "contradicted|conflicting",
+      "why": "not metaphysically inevitable (P105)"
+    },
+    {
+      "starts": "Instead, the paper calls",
+      "expect": "supported"
+    },
+    {
+      "starts": "Lovett also recommends",
+      "expect": "contradicted|unsupported|partly supported",
+      "why": "hypotheses, not policy recommendations (P099)"
+    },
+    {
+      "starts": "Let me know",
+      "expect": "filler"
+    }
+  ]
+}

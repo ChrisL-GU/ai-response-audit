@@ -1,0 +1,120 @@
+{
+  "document": "TragedyOfCognitiveCommons.pdf",
+  "response": "governance-response.txt",
+  "note": "A real assistant answer about the paper's governance proposals. Labels checked against the passages. `not` lists statuses that would be wrong; the first run of the old pipeline flagged these as contradicted. `evidence` holds text that should appear in a passage Jev found to address the claim.",
+  "sentences": [
+    {
+      "starts": "The paper calls these ideas hypotheses",
+      "expect": "supported",
+      "quote": "verbatim",
+      "page_ok": false,
+      "why": "quote is on PDF p. 40-41, not p. ~1227",
+      "evidence": [
+        "These remain hypotheses about institutional design"
+      ]
+    },
+    {
+      "starts": "In the past, professions renewed",
+      "expect": "supported|partly supported",
+      "evidence": [
+        "the hidden governance mechanism"
+      ]
+    },
+    {
+      "starts": "Lovett calls the operational need",
+      "expect": "supported",
+      "quote": "verbatim",
+      "evidence": [
+        "the hidden governance mechanism"
+      ]
+    },
+    {
+      "starts": "AI removes that need",
+      "not": "contradicted|conflicting",
+      "evidence": [
+        "captures 100% of the efficiency gains"
+      ]
+    },
+    {
+      "starts": "A firm that planned to",
+      "quote": "close wording|not found",
+      "why": "P052 says: we'll hire experienced workers from the labor market"
+    },
+    {
+      "starts": "Everett et al. (2025) found",
+      "expect": "supported",
+      "evidence": [
+        "preserved and even improved diagnostic performance"
+      ]
+    },
+    {
+      "starts": "Danry et al. (2023) found",
+      "expect": "supported",
+      "evidence": [
+        "preserved and even improved diagnostic performance"
+      ]
+    },
+    {
+      "starts": "The key idea:",
+      "expect": "supported",
+      "quote": "verbatim",
+      "evidence": [
+        "eight design principles"
+      ]
+    },
+    {
+      "starts": "clear boundaries",
+      "expect": "supported",
+      "evidence": [
+        "eight design principles"
+      ]
+    },
+    {
+      "starts": "conflict resolution",
+      "expect": "supported",
+      "evidence": [
+        "eight design principles"
+      ]
+    },
+    {
+      "starts": "Warning: medicine, law and engineering",
+      "not": "contradicted|conflicting",
+      "evidence": [
+        "Associations in medicine, law, and engineering"
+      ]
+    },
+    {
+      "starts": "Tech and financial analysis mostly",
+      "expect": "supported|conflicting",
+      "why": "P097 supports it; P036 lists legal research with financial analysis as most exposed, against S40's claim about law",
+      "evidence": [
+        "Associations in medicine, law, and engineering"
+      ]
+    },
+    {
+      "starts": "Tax credits or matching funds",
+      "expect": "supported",
+      "evidence": [
+        "tax credits and matching funds"
+      ]
+    },
+    {
+      "starts": "Output metrics that reward quality",
+      "expect": "supported",
+      "evidence": [
+        "tax credits and matching funds"
+      ]
+    },
+    {
+      "starts": "The profession-wide depletion is a prediction",
+      "not": "contradicted|conflicting",
+      "evidence": [
+        "structural prediction from that dissociation"
+      ]
+    },
+    {
+      "starts": "The paper names that gap",
+      "not": "contradicted|conflicting"
+    }
+  ]
+}
