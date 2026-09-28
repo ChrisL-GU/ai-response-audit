@@ -1,0 +1,19 @@
+{
+  "document": "documents/Ava Knap Story.docx",
+  "question": "Summarize the story about Ava Knap's exhibit.",
+  "holdout": true,
+  "claims": [
+    {"starts": "Ava Knap's Honors showcase", "label": "paraphrased", "evidence": ["brings neuroscience and art into conversation"]},
+    {"starts": "The exhibition runs January", "label": "paraphrased", "evidence": ["open January 12–30"]},
+    {"starts": "Ava will present it on Thursday", "label": "partly", "evidence": ["Wednesday, January 14"], "case": "changed detail: Wednesday -> Thursday"},
+    {"starts": "It grew out of her Honors thesis", "label": "paraphrased", "evidence": ["draws from her thesis work"], "case": "summary across passages"},
+    {"starts": "She wants the show to be", "label": "quoted", "evidence": ["engage with neuroscience in a way that feels familiar and approachable"]},
+    {"starts": "Her approach reflects the Jesuit", "label": "paraphrased", "evidence": ["integrating diverse ways of knowing"]},
+    {"starts": "Because the gallery is small", "label": "inferred", "evidence": ["intimate space"]},
+    {"starts": "Ava is part of the first graduating class", "label": "partly", "evidence": ["first graduating class"], "case": "mixed: the club is not in the story"},
+    {"starts": "She also plans to study art therapy", "label": "not", "case": "fabricated detail on the topic"},
+    {"starts": "The Jundt Art Museum opened", "label": "not", "case": "outside knowledge"},
+    {"starts": "Exhibits like this one", "label": "not", "case": "outside knowledge"},
+    {"starts": "Hope this helps", "label": "skipped"}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "document": "documents/Magnifica Humanitas Abridged.docx",
+  "question": "What does Magnifica Humanitas say about AI?",
+  "holdout": false,
+  "claims": [
+    {"starts": "Magnifica Humanitas is Pope Leo XIV", "label": "paraphrased", "evidence": ["SAFEGUARDING THE HUMAN PERSON"]},
+    {"starts": "It marks the 135th anniversary", "label": "paraphrased", "evidence": ["published his Encyclical Rerum Novarum in 1891"], "common": true},
+    {"starts": "Rerum Novarum is widely seen", "label": "paraphrased", "evidence": ["first major systematic framework for the Social Doctrine"], "common": true},
+    {"starts": "The encyclical insists that AI systems", "label": "paraphrased", "evidence": ["merely imitate certain functions of human intelligence"]},
+    {"starts": "They have no body", "label": "paraphrased", "evidence": ["do not possess a body"]},
+    {"starts": "What AI calls learning", "label": "paraphrased", "evidence": ["statistical adaptation based on data and feedback"]},
+    {"starts": "Because every system embodies choices", "label": "paraphrased", "evidence": ["we cannot consider AI to be morally neutral"]},
+    {"starts": "It follows that the people who design", "label": "inferred", "evidence": ["how it classifies people"]},
+    {"starts": "He calls for prudence", "label": "quoted", "evidence": ["Calling for prudence, rigorous evaluation"]},
+    {"starts": "He also proposes an international treaty", "label": "partly", "evidence": ["shared framework"], "case": "changed: a shared framework to curb the arms race, not a ban on all military uses"},
+    {"starts": "The European Union's AI Act", "label": "not", "case": "outside knowledge on the topic"},
+    {"starts": "On work, the encyclical warns", "label": "paraphrased", "evidence": ["de-skill workers"]},
+    {"starts": "This echoes Pope Francis", "label": "partly", "evidence": ["technocratic paradigm"], "case": "mixed: the 2015 date is not in the document"},
+    {"starts": "The encyclical's most important idea", "label": "not", "case": "assistant's opinion attributed to the document"},
+    {"starts": "Drawing on Tolkien", "label": "paraphrased", "evidence": ["master all the tides of the world"]},
+    {"starts": "I hope this overview", "label": "skipped"}
+  ]
+}

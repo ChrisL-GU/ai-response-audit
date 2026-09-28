@@ -1,0 +1,20 @@
+{
+  "document": "documents/Ava Knap Story.docx",
+  "question": "Tell me about Ava Knap.",
+  "holdout": false,
+  "claims": [
+    {"starts": "Here's an overview", "label": "skipped"},
+    {"starts": "Ava Knap is a senior", "label": "paraphrased", "evidence": ["small agricultural town of St. Joseph"], "case": "close paraphrase"},
+    {"starts": "Gonzaga is a private Jesuit", "label": "partly", "evidence": ["Spokane"], "case": "mixed: Spokane and Jesuit are in the story; private, Washington and 1887 are not"},
+    {"starts": "She first planned to major", "label": "paraphrased", "evidence": ["Originally committed to majoring in biology"]},
+    {"starts": "Her interest in the brain", "label": "paraphrased", "evidence": ["younger brother’s experience navigating learning disabilities"]},
+    {"starts": "That experience likely shapes", "label": "inferred", "evidence": ["become a school psychologist"], "case": "inference across two passages"},
+    {"starts": "Ava balances a Division I", "label": "partly", "evidence": ["several campus jobs"], "case": "changed detail: several -> three"},
+    {"starts": "She says athletics taught her", "label": "paraphrased", "evidence": ["keep going when things are repetitive or exhausting"]},
+    {"starts": "Research shows that student-athletes", "label": "not", "case": "outside knowledge on the topic"},
+    {"starts": "After graduating, she plans", "label": "quoted", "evidence": ["education specialist degree"]},
+    {"starts": "Her exhibition, Where's My Mind", "label": "paraphrased", "evidence": ["Shoebox Gallery at the Jundt Art Museum"]},
+    {"starts": "The article argues that every university", "label": "not", "case": "assistant's opinion attributed to the document"},
+    {"starts": "Let me know", "label": "skipped"}
+  ]
+}

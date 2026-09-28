@@ -1,0 +1,24 @@
+{
+  "document": "documents/TragedyOfCognitiveCommons.pdf",
+  "question": "What is the tragedy of the cognitive commons?",
+  "holdout": false,
+  "claims": [
+    {"starts": "Great question.", "label": "skipped"},
+    {"starts": "In 1968, Garrett Hardin described", "label": "paraphrased", "evidence": ["In 1968, Garrett Hardin described how rational individuals"], "common": true},
+    {"starts": "Lovett argues that deep professional expertise", "label": "paraphrased", "evidence": ["the Cognitive Commons refers to the deep, validation-capable expertise"]},
+    {"starts": "Organizations used to train new experts", "label": "paraphrased", "evidence": ["side effect of normal business operations"]},
+    {"starts": "Each firm that eliminates", "label": "paraphrased", "evidence": ["captures 100% of the efficiency gains"]},
+    {"starts": "The paper points to early evidence.", "label": "paraphrased", "evidence": ["Early labor market and clinical evidence suggests"]},
+    {"starts": "Workers aged 22 to 25", "label": "paraphrased", "evidence": ["16% relative decline in employment"]},
+    {"starts": "Employment for older workers", "label": "partly", "evidence": ["grew by over 8%"], "case": "changed detail: grew -> fell"},
+    {"starts": "Similar worries were raised about calculators", "label": "not", "case": "outside knowledge"},
+    {"starts": "The paper distinguishes Internalized Mastery", "label": "paraphrased", "evidence": ["Distributed Mastery, representing fluency"]},
+    {"starts": "Since the second depends on the first", "label": "inferred", "evidence": ["effective Distributed Mastery fundamentally depends on Internalized Mastery"]},
+    {"starts": "In one experiment, 80.7%", "label": "paraphrased", "evidence": ["80.7% of participants detected errors"]},
+    {"starts": "Lovett recommends that governments require", "label": "not", "case": "fabricated recommendation; the paper offers hypotheses, not mandates"},
+    {"starts": "He builds on Elinor Ostrom", "label": "partly", "evidence": ["Ostrom's (1990, 2010) empirical work"], "case": "mixed: the Nobel Prize is not in the paper"},
+    {"starts": "Lovett's framework is the most convincing", "label": "not", "case": "assistant's opinion"},
+    {"starts": "The paper concludes that the tragedy", "label": "paraphrased", "evidence": ["not metaphysically inevitable, but it is structurally predictable"]},
+    {"starts": "Would you like discussion questions", "label": "skipped"}
+  ]
+}

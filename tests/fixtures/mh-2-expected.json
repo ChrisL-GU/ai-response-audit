@@ -1,0 +1,26 @@
+{
+  "document": "documents/Magnifica Humanitas Abridged.docx",
+  "question": "What principles of Catholic social teaching does the encyclical apply to AI?",
+  "holdout": true,
+  "claims": [
+    {"starts": "The encyclical applies the main principles", "label": "paraphrased", "evidence": ["The principles of Social Doctrine offer a framework"]},
+    {"starts": "The common good.", "label": "skipped"},
+    {"starts": "It describes the common good", "label": "quoted", "evidence": ["social expression of the dignity"]},
+    {"starts": "Quoting the Second Vatican Council", "label": "paraphrased", "evidence": ["sum total of social conditions"]},
+    {"starts": "The universal destination of goods.", "label": "skipped"},
+    {"starts": "Private property is a real right", "label": "quoted", "evidence": ["always subordinate to the universal destination of goods"]},
+    {"starts": "John Paul II called this", "label": "quoted", "evidence": ["first principle of the whole ethical and social order"]},
+    {"starts": "Subsidiarity.", "label": "skipped"},
+    {"starts": "Higher authorities should not take over", "label": "paraphrased", "evidence": ["should not be supplanted by higher-level authorities"]},
+    {"starts": "In the digital world, the encyclical argues", "label": "paraphrased", "evidence": ["the highest level is not the State"]},
+    {"starts": "So subsidiarity requires transparency", "label": "paraphrased", "evidence": ["transparency regarding algorithms"]},
+    {"starts": "This implies that decisions", "label": "inferred", "evidence": ["monopolizes expertise, data and decision-making authority"]},
+    {"starts": "Solidarity.", "label": "skipped"},
+    {"starts": "The principle of solidarity was first", "label": "not", "case": "false outside claim on the topic"},
+    {"starts": "The encyclical also looks back", "label": "paraphrased", "evidence": ["right to a fair wage"], "common": true},
+    {"starts": "It says the Church first addressed", "label": "partly", "evidence": ["published in 1931"], "case": "changed attribution: Rerum Novarum (1891) came first"},
+    {"starts": "Catholic social teaching has seven", "label": "not", "case": "outside knowledge"},
+    {"starts": "Overall, these principles", "label": "not", "case": "assistant's opinion"},
+    {"starts": "Let me know", "label": "skipped"}
+  ]
+}

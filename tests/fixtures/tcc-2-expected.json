@@ -1,0 +1,25 @@
+{
+  "document": "documents/TragedyOfCognitiveCommons.pdf",
+  "question": "How does the paper say HRD should respond?",
+  "holdout": true,
+  "claims": [
+    {"starts": "According to the paper, HRD should respond", "label": "skipped"},
+    {"starts": "Lovett says HRD should shift", "label": "quoted", "evidence": ["from individual capability to the collective system that produces it"]},
+    {"starts": "He proposes measuring the health", "label": "paraphrased", "evidence": ["entry-level hiring ratios"]},
+    {"starts": "These indicators are offered", "label": "quoted", "evidence": ["research agenda, not as validated measurement instruments"]},
+    {"starts": "Governance could form at three levels", "label": "paraphrased", "evidence": ["organizational, professional-association, and public policy"]},
+    {"starts": "Associations in medicine, law and engineering", "label": "paraphrased", "evidence": ["Associations in medicine, law, and engineering have institutional infrastructure"]},
+    {"starts": "The paper cites Ostrom's eight design principles", "label": "partly", "evidence": ["eight design principles"], "case": "mixed: the book title is not in the paper's text"},
+    {"starts": "On public policy, he favors investment", "label": "paraphrased", "evidence": ["investment rather than prohibition"], "case": "summary"},
+    {"starts": "He treats these proposals as hypotheses", "label": "paraphrased", "evidence": ["hypotheses about institutional design rather than policy recommendations"]},
+    {"starts": "HRD professionals will need systems thinking", "label": "paraphrased", "evidence": ["Beyond AI tool proficiency, HRD professionals need systems thinking"]},
+    {"starts": "Since the losses appear years later", "label": "inferred", "evidence": ["time delay between cause and effect"]},
+    {"starts": "The paper estimates that the shortage", "label": "paraphrased", "evidence": ["2030-2045"]},
+    {"starts": "It estimates that the shortage will cost", "label": "not", "case": "fabricated number"},
+    {"starts": "Mentoring programs are the cheapest", "label": "not", "case": "assistant's opinion attributed to the paper"},
+    {"starts": "The paper also draws on Pigou", "label": "paraphrased", "evidence": ["negative externality (Pigou, 1920)"]},
+    {"starts": "Pigou was a Cambridge economist", "label": "not", "case": "outside knowledge on the topic"},
+    {"starts": "Lovett served for twenty years", "label": "not", "case": "fabricated biography"},
+    {"starts": "Participants in your reading group", "label": "skipped"}
+  ]
+}

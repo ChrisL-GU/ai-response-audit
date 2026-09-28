@@ -1,43 +1,84 @@
-"""Compare an audit.json against hand labels.
+"""Score audit results against hand labels.
 
-  python3 tests/check.py WORK_DIR/audit.json tests/fixtures/<name>-expected.json
+  python3 tests/check.py WORK_ROOT [--set tune|holdout|all] [--details]
 
-Per expected sentence (matched by its first words):
-  expect   acceptable statuses, "|" separated
-  not      statuses that would be wrong
-  evidence text that should appear in a passage Jev found to address the claim
-  quote    acceptable statuses for the claim's quotation(s)
-  page_ok  whether its page citation should match
-Prints one line per sentence; exits non-zero on any failure.
+Expects WORK_ROOT/<answer>/audit.json and passages.json for each tests/fixtures/<answer>-expected.json
+(tests/run.sh creates them). "From the document" means quoted, paraphrased, inferred or partly.
+
+  precision  of the claims the tool marks as from the document, the share that really are
+  recall     of the claims that really are from the document, the share the tool marks so
+  source     of the true positives, the share where an expected evidence snippet is in a reported passage
+  false used of the claims not from the document, the share the tool marks as from it
+Skipped (filler) claims are scored separately and left out of the four metrics.
 """
 
+import argparse
+import collections
 import json
-import sys
+import re
 from pathlib import Path
 
-audit, expected = (json.load(open(p)) for p in sys.argv[1:3])
-passages = {p["id"]: p["text"] for p in json.load(open(Path(sys.argv[1]).with_name("passages.json")))["passages"]}
-rows = audit["sentences"]
-fails = 0
-for exp in expected["sentences"]:
-    row = next((r for r in rows if r["text"].startswith(exp["starts"])), None)
-    if row is None:
-        print(f"MISSING  {exp['starts']!r}")
-        fails += 1
+FROM = {"quoted", "paraphrased", "inferred", "partly"}
+LABELS = ["quoted", "paraphrased", "inferred", "partly", "not", "skipped"]
+TARGETS = {"precision": 0.90, "recall": 0.80, "source": 0.85, "false used": 0.05}
+
+ap = argparse.ArgumentParser()
+ap.add_argument("root", type=Path)
+ap.add_argument("--set", default="all", choices=["tune", "holdout", "all"])
+ap.add_argument("--details", action="store_true", help="list every claim whose label differs")
+args = ap.parse_args()
+fixtures = Path(__file__).parent / "fixtures"
+norm = lambda t: re.sub(r"\s+", " ", t.replace(" ", " "))
+short = lambda l: "not" if l == "not from the document" else l
+
+tp = fp = fn = tn = src_ok = skip_ok = skip_n = 0
+confusion = collections.Counter()
+common, misses = [], []
+for exp_path in sorted(fixtures.glob("*-expected.json")):
+    exp = json.loads(exp_path.read_text())
+    if args.set != "all" and exp["holdout"] != (args.set == "holdout"):
         continue
-    problems = []
-    if "expect" in exp and row["status"] not in exp["expect"].split("|"):
-        problems.append(f"status {row['status']!r}, expected {exp['expect']!r}")
-    if "not" in exp and row["status"] in exp["not"].split("|"):
-        problems.append(f"status {row['status']!r} should not be {exp['not']!r}")
-    found = [passages[l["passage"]] for l in row["passages"] if l["verdict"] != "does not address"]
-    missing = [e for e in exp.get("evidence", []) if not any(e in text for text in found)]
-    if "quote" in exp and not any(q["status"] in exp["quote"].split("|") for q in row["quotes"]):
-        problems.append(f"quote check {[q['status'] for q in row['quotes']]}, expected {exp['quote']!r}")
-    if "page_ok" in exp and not any(c["ok"] is exp["page_ok"] for c in row["page_citations"]):
-        problems.append(f"page check {[c['ok'] for c in row['page_citations']]}, expected {exp['page_ok']}")
-    note = f"  (expected evidence not found: {'; '.join(missing)})" if missing else ""
-    print(f"{'FAIL' if problems else 'ok  '}  {row['id']} {row['status']:<17} {'; '.join(problems)}{note}")
-    fails += bool(problems)
-print(f"\n{len(expected['sentences']) - fails}/{len(expected['sentences'])} as expected")
-sys.exit(1 if fails else 0)
+    name = exp_path.name.replace("-expected.json", "")
+    audit = json.loads((args.root / name / "audit.json").read_text())
+    passages = {p["id"]: p["text"] for p in json.loads((args.root / name / "passages.json").read_text())["passages"]}
+    for e in exp["claims"]:
+        r = next(c for c in audit["claims"] if c["text"].startswith(e["starts"]))
+        want, got = e["label"], short(r["label"])
+        confusion[want, got] += 1
+        if want != got:
+            misses.append((name, r["id"], want, got, r["text"]))
+        if want == "skipped":
+            skip_n += 1
+            skip_ok += got == "skipped"
+            continue
+        if e.get("common"):
+            common.append((name, r["id"], want, got))
+        truly, marked = want in FROM, got in FROM
+        tp += truly and marked
+        fp += marked and not truly
+        fn += truly and not marked
+        tn += not truly and not marked
+        if truly and marked:
+            texts = [norm(passages[l["passage"]]) for l in r["passages"] if l["verdict"] in FROM | {"quoted"}]
+            src_ok += any(norm(s) in t for s in e.get("evidence", []) for t in texts)
+
+metrics = {"precision": tp / max(tp + fp, 1), "recall": tp / max(tp + fn, 1),
+           "source": src_ok / max(tp, 1), "false used": fp / max(fp + tn, 1)}
+print(f"Set: {args.set}  ({tp + fp + fn + tn} claims scored, {skip_n} filler)\n")
+for k, v in metrics.items():
+    ok = v <= TARGETS[k] if k == "false used" else v >= TARGETS[k]
+    print(f"  {k:<11} {v:6.1%}   target {'≤' if k == 'false used' else '≥'} {TARGETS[k]:.0%}   {'pass' if ok else 'FAIL'}")
+print(f"  filler      {skip_ok}/{skip_n} skipped correctly")
+print(f"\n  counts: {tp} true from-document, {fp} false from-document, {fn} missed, {tn} correctly not\n")
+print("Confusion (rows = expected, columns = tool):")
+print("  " + " " * 12 + "".join(f"{l[:11]:>12}" for l in LABELS))
+for w in LABELS:
+    print(f"  {w:<12}" + "".join(f"{confusion[w, g] or '·':>12}" for g in LABELS))
+if common:
+    print("\nCommon-knowledge claims that the document also states:")
+    for name, cid, want, got in common:
+        print(f"  {name} {cid}: expected {want}, tool {got}")
+if args.details and misses:
+    print("\nLabel differences:")
+    for name, cid, want, got, text in misses:
+        print(f"  {name} {cid}: expected {want:<11} tool {got:<11} {text[:90]}")

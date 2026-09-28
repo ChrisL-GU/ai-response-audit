@@ -4,12 +4,12 @@
     "name": "Christopher Lopes"
   },
   "metadata": {
-    "description": "Audit AI responses against their source documents with Jev (TypeSafe)."
+    "description": "Trace AI answers back to their source documents with Jev (TypeSafe)."
   },
   "plugins": [
     {
       "name": "auditlm",
-      "description": "Audit an AI response against the document it should draw on, using Jev (TypeSafe).",
+      "description": "Show which parts of an AI answer came from a source document, using Jev (TypeSafe).",
       "source": "."
     }
   ]

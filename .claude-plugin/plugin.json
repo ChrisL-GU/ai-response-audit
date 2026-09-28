@@ -1,8 +1,8 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "auditlm",
-  "version": "0.1.0",
-  "description": "Audit an AI assistant's response against its source document: which passages each sentence drew on, which claims are unsupported or contradicted, and what the response ignored. Uses Jev (TypeSafe).",
+  "version": "0.2.0",
+  "description": "Show which parts of an AI assistant's answer came from a source document (PDF or Word) and which did not, with the document's own words as evidence. Uses code and Jev (TypeSafe).",
   "author": {
     "name": "Christopher Lopes",
     "email": "lopes@gonzaga.edu"
